@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+        <title>{{ title }}</title>
+    </head>
+    
+    <body>
+        <div class="container">
+            <h1>Papers Library</h1>
+
+            <form id="formPaper">
+                <!-- Paper ID -->              
+                <div class="form-group">
+                    <label for="paper_id">ID</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="paper_id" id="paper_id" placeholder="Arxiv's Paper ID">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-outline-secondary" id="btnSearch">&#x1F50D;</button>
+                        </div>
+                    </div>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="not-found-alert">
+                        Paper not found
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Title -->
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" class="form-control" name="title" id="title" placeholder="Paper Title">
+                </div>
+
+                <!-- Abstract -->
+                <div class="form-group">
+                    <label for="abstract">Abstract</label>
+                    <textarea class="form-control" name="abstract" id="abstract" rows="5"></textarea>
+                </div>
+
+                <!-- Authors -->
+                <div class="form-group">
+                    <label for="authors">Authors</label>
+                    <input type="text" class="form-control" name="authors" id="authors" placeholder="Authors">
+                </div>
+
+                <!-- Controls: Download | Analyse -->
+                <div class="row justify-content-between">
+                    <div class="col-auto mr-auto">
+                        <button type="button" class="btn btn-primary" id="btnDownload">Download</button>
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-primary" id="btnAnalyse">Analyse</button>
+                    </div>
+                </div>
+                
+            </form>
+
+        </div>
+    </body>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+
+    <script>
+        $(document).ready(function(){
+            $("#not-found-alert").hide();
+        });
+
+        $("#btnSearch").on("click", function(e){
+            paperId = $("#formPaper").find("input[name=paper_id").val()
+            data = {"paperId": paperId}
+
+            request = new XMLHttpRequest();
+            request.addEventListener("readystatechange", (e)=>{
+                if(e.target.readyState == 4 && e.target.status == 200){
+                    window.location = "/main";
+                }
+            });
+
+            request.open("POST", "http://127.0.0.1:5000/search", true)
+            request.setRequestHeader("Content-Type", "application/json");
+            request.send(JSON.stringify(data));
+
+            request.onload = function(){
+                // console.log(request.responseText)
+                if(request.responseText == ""){
+                    $("#not-found-alert").fadeTo(2000, 500).slideUp(500, function(){
+                        $("#not-found-alert").slideUp(500);
+                    });
+                }else{
+                    data = JSON.parse(request.responseText)
+
+                    $("#formPaper").find("input[name=title").val(data["title"])
+                    $("#abstract").val(data["abstract"])
+                    $("#formPaper").find("input[name=authors").val(data["authors"])
+
+                }
+            }
+        })
+    </script>
+</html>
