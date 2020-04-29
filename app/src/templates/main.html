@@ -13,54 +13,76 @@
     <body>
         <div class="container">
             <h1>Papers Library</h1>
+            
+                <form id="formPaper">
+                    
+                    <!-- Paper properties -->
+                        
+                            <!-- Paper ID -->              
+                            <div class="form-group">
+                                <label for="paper_id">ID</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="paper_id" id="paper_id" placeholder="Arxiv's Paper ID">
+                                    <div class="input-group-append">
+                                        <button type="button" class="btn btn-outline-secondary" id="btnSearch">&#x1F50D;</button>
+                                    </div>
+                                </div>
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert" id="not-found-alert">
+                                    Paper not found
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            </div>
 
-            <form id="formPaper">
-                <!-- Paper ID -->              
-                <div class="form-group">
-                    <label for="paper_id">ID</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="paper_id" id="paper_id" placeholder="Arxiv's Paper ID">
-                        <div class="input-group-append">
-                            <button type="button" class="btn btn-outline-secondary" id="btnSearch">&#x1F50D;</button>
+                            <!-- Title -->
+                            <div class="form-group">
+                                <label for="title">Title</label>
+                                <input type="text" class="form-control" name="title" id="title" placeholder="Paper Title">
+                            </div>
+
+                            <!-- Abstract -->
+                            <div class="form-group">
+                                <label for="abstract">Abstract</label>
+                                <textarea class="form-control" name="abstract" id="abstract" rows="5"></textarea>
+                            </div>
+
+                            <!-- Authors -->
+                            <div class="form-group">
+                                <label for="authors">Authors</label>
+                                <input type="text" class="form-control" name="authors" id="authors" placeholder="Authors">
+                            </div>
+
+                            <!-- Controls: Download | Analyse -->
+                            <div class="form-group">
+                                <div class="row justify-content-between">
+                                    <div class="col-auto mr-auto">
+                                        <a href="#" class="btn btn-primary" role="button" name="btnDownload" id="btnDownload">Download</a>
+                                    </div>
+                                    <div class="col-auto">
+                                        <button type="button" class="btn btn-primary" id="btnAnalyze">Analyze</button>
+                                    </div>
+                                </div>
+                            </div>
+                        
+
+                        <!-- Notes -->
+                        <div class="d-none" id="notes">
+                            <div class="form-group">
+                                <label for="notes">Notes</label>
+                                <textarea class="form-control" name="notes" id="notes" placeholder="Take your notes about this paper"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <div class="row justify-content-between">
+                                    <div class="col-auto mr-auto">
+                                        <button type="button" class="btn btn-primary" name="btnSave" id="btnSave">Save</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="not-found-alert">
-                        Paper not found
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                </div>
+                </form>
 
-                <!-- Title -->
-                <div class="form-group">
-                    <label for="title">Title</label>
-                    <input type="text" class="form-control" name="title" id="title" placeholder="Paper Title">
-                </div>
-
-                <!-- Abstract -->
-                <div class="form-group">
-                    <label for="abstract">Abstract</label>
-                    <textarea class="form-control" name="abstract" id="abstract" rows="5"></textarea>
-                </div>
-
-                <!-- Authors -->
-                <div class="form-group">
-                    <label for="authors">Authors</label>
-                    <input type="text" class="form-control" name="authors" id="authors" placeholder="Authors">
-                </div>
-
-                <!-- Controls: Download | Analyse -->
-                <div class="row justify-content-between">
-                    <div class="col-auto mr-auto">
-                        <a href="#" class="btn btn-primary" role="button" name="btnDownload" id="btnDownload">Download</a>
-                    </div>
-                    <div class="col-auto">
-                        <button type="button" class="btn btn-primary" id="btnAnalyze">Analyze</button>
-                    </div>
-                </div>
-            </form>
-
+            
         </div>
     </body>
 
@@ -70,14 +92,8 @@
 
 
     <script>
-        $(document).ready(function(){
-            $("#not-found-alert").hide();
-        });
 
-        $("#btnSearch").on("click", function(e){
-            paperId = $("#formPaper").find("input[name=paper_id").val()
-            data = {"paperId": paperId}
-
+        function post_data(data, address){
             request = new XMLHttpRequest();
             request.addEventListener("readystatechange", (e)=>{
                 if(e.target.readyState == 4 && e.target.status == 200){
@@ -85,17 +101,39 @@
                 }
             });
 
-            request.open("POST", "http://127.0.0.1:5000/search", true)
+            request.open("POST", address, true);
             request.setRequestHeader("Content-Type", "application/json");
             request.send(JSON.stringify(data));
+        }
 
+        $(document).ready(function(){
+            $("#not-found-alert").hide();
+        });
+
+        // Search button
+        $("#btnSearch").on("click", function(e){
+            // Disable search button while searching
+            $(this).attr("disabled", true)
+                .removeClass("btn btn-outline-secondary")
+                .addClass("progress-bar progress-bar-striped progress-bar-animated bg-info")
+                .html("Searching...");
+
+            paperId = $("#formPaper").find("input[name=paper_id").val()
+            data = {"paperId": paperId}
+
+            // Create request
+
+            post_data(data, "http://127.0.0.1:5000/search");
+
+            // Process response
             request.onload = function(){
-                // console.log(request.responseText)
+                // Paper not found alert
                 if(request.responseText == ""){
                     $("#not-found-alert").fadeTo(2000, 500).slideUp(500, function(){
                         $("#not-found-alert").slideUp(500);
                     });
                 }else{
+                    // Fill form with data
                     data = JSON.parse(request.responseText)
 
                     $("#formPaper").find("input[name=title").val(data["title"])
@@ -105,9 +143,31 @@
                         .attr("href", data["link_pdf"])
                         .attr("download", "")
                         .attr("target", "_blank")
-
                 }
+                
+                // Enable search button again
+                $("#btnSearch").attr("disabled", false)
+                    .removeClass("progress-bar progress-bar-striped progress-bar-animated bg-info")
+                    .addClass("btn btn-outline-secondary")
+                    .html("&#x1F50D;");
+
+                // Show notes div
+                $("#notes").removeClass("d-none");
             }
+        });
+
+        // Save button
+        $("#btnSave").on("click", function(e){
+            data = {
+                "paper_id": $("#formPaper").find("input[name=paper_id").val(),
+                "title": $("#formPaper").find("input[name=title").val(),
+                "abstract": $("#formPaper").find("input[name=abstract").val(),
+                "authors": $("#formPaper").find("input[name=authors").val().split(","),
+                "notes": $("#formPaper").find("input[name=notes").val()
+            }
+
+            post_data(data, "http://127.0.0.1:5000/save");
+
         });
     </script>
 </html>
