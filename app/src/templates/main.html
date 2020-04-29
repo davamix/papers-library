@@ -53,13 +53,12 @@
                 <!-- Controls: Download | Analyse -->
                 <div class="row justify-content-between">
                     <div class="col-auto mr-auto">
-                        <button type="button" class="btn btn-primary" id="btnDownload">Download</button>
+                        <a href="#" class="btn btn-primary" role="button" name="btnDownload" id="btnDownload">Download</a>
                     </div>
                     <div class="col-auto">
-                        <button type="button" class="btn btn-primary" id="btnAnalyse">Analyse</button>
+                        <button type="button" class="btn btn-primary" id="btnAnalyze">Analyze</button>
                     </div>
                 </div>
-                
             </form>
 
         </div>
@@ -102,9 +101,13 @@
                     $("#formPaper").find("input[name=title").val(data["title"])
                     $("#abstract").val(data["abstract"])
                     $("#formPaper").find("input[name=authors").val(data["authors"])
+                    $("#btnDownload")
+                        .attr("href", data["link_pdf"])
+                        .attr("download", "")
+                        .attr("target", "_blank")
 
                 }
             }
-        })
+        });
     </script>
 </html>

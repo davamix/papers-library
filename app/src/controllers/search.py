@@ -27,7 +27,8 @@ class SearchController(MethodView):
                 paper = {
                     "title": parse["entries"][0]["title"],
                     "abstract": parse["entries"][0]["summary"].replace("\n", " "),
-                    "authors": ", ".join([a["name"] for a  in parse["entries"][0]["authors"]])
+                    "authors": self.get_authors(parse["entries"][0]),
+                    "link_pdf": self.get_link_pdf(parse["entries"][0])
                 }
 
                 return paper, 206
@@ -35,3 +36,9 @@ class SearchController(MethodView):
             print(parse)
 
         return "", 204
+
+    def get_authors(self, data):
+        return ", ".join([a["name"] for a  in data["authors"]])
+
+    def get_link_pdf(self, data):
+        return next((x["href"] for x in data["links"] if x["type"] == "application/pdf"), None)
