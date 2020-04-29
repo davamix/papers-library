@@ -6,3 +6,24 @@ services:
         image: papers-library:1.0
         ports:
             - 5000:5000
+        depends_on: 
+            - mongodb
+        networks:
+            - backend
+
+    mongodb:
+        image: mongo:bionic
+        restart: always
+        volumes:
+            - mongodbdata:/data/db
+        networks:
+            - backend
+
+networks:
+    backend:
+        driver: bridge
+
+volumes:
+    mongodbdata:
+        driver: local
+        

@@ -1,12 +1,29 @@
 from pathlib import Path
 from flask import Flask
 
+from pymongo import MongoClient
+
 from controllers.library import LibraryController
 from controllers.search import SearchController
 
 templates_path = Path(Path.cwd(), "src", "templates")
 
 app = Flask(__name__, template_folder=templates_path)
+
+# Testing db connection
+client_db = MongoClient("mongodb://mongodb:27017")
+database = client_db.papers_db
+papers = database.papers_collection
+paper = {
+    "paper_id": "1111.1111",
+    "title": "Paper title",
+    "abstract": "A lot of words in the abstract",
+    "authors": "My cat",
+    "link_pdf": "http://server.com/paper"
+}
+paper_mongo_id = papers.insert_one(paper).inserted_id
+print(f"## INSERTED PAPER: {paper_mongo_id}")
+
 
 # https://stackoverflow.com/a/45438226/844372
 @app.after_request
