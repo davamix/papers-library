@@ -13,86 +13,101 @@
     <body>
         <div class="container">
             <h1>Papers Library</h1>
-            
-                <form id="formPaper">
-                    
-                    <!-- Paper properties -->
-                        
-                            <!-- Paper ID -->              
-                            <div class="form-group">
-                                <label for="paper_id">ID</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" name="paper_id" id="paper_id" placeholder="Arxiv's Paper ID">
-                                    <div class="input-group-append">
-                                        <button type="button" class="btn btn-outline-secondary" id="btnSearch">&#x1F50D;</button>
-                                    </div>
+
+            <div class="row">
+                <div class="col-4">
+                    <div class="list-group" id="paper_list">
+                        <div class="d-none" id="list_item_template">
+                            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start" id="paper_item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1" name="title"></h5>
                                 </div>
-                                <div class="alert alert-danger alert-dismissible fade show" role="alert" id="not-found-alert">
-                                    Paper not found
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Title -->
-                            <div class="form-group">
-                                <label for="title">Title</label>
-                                <input type="text" class="form-control" name="title" id="title" placeholder="Paper Title">
-                            </div>
-
-                            <!-- Abstract -->
-                            <div class="form-group">
-                                <label for="abstract">Abstract</label>
-                                <textarea class="form-control" name="abstract" id="abstract" rows="5"></textarea>
-                            </div>
-
-                            <!-- Authors -->
-                            <div class="form-group">
-                                <label for="authors">Authors</label>
-                                <input type="text" class="form-control" name="authors" id="authors" placeholder="Authors">
-                            </div>
-
-                            <!-- Controls: Download | Analyse -->
-                            <div class="form-group">
-                                <div class="row justify-content-between">
-                                    <div class="col-auto mr-auto">
-                                        <a href="#" class="btn btn-primary" role="button" name="btnDownload" id="btnDownload">Download</a>
-                                    </div>
-                                    <div class="col-auto">
-                                        <button type="button" class="btn btn-primary" id="btnAnalyze">Analyze</button>
-                                    </div>
-                                </div>
-                            </div>
-                        
-
-                        <!-- Notes -->
-                        <div class="d-none" id="notes">
-                            <div class="form-group">
-                                <label for="notes">Notes</label>
-                                <textarea class="form-control" name="notes" id="notes" placeholder="Take your notes about this paper"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <div class="row justify-content-between">
-                                    <div class="col-auto mr-auto">
-                                        <button type="button" class="btn btn-primary" name="btnSave" id="btnSave">Save</button>
-                                    </div>
-                                </div>
-                            </div>
+                                <!-- <a href="#" class="mb-1" name="link">Link</a> -->
+                                <small name="paper_id"></small>
+                            </a>
                         </div>
-                </form>
+                    </div>
+                </div>
 
-            
+                <div class="col-8">
+                    <form id="formPaper">
+                        <!-- Paper properties -->
+                            
+                                <!-- Paper ID -->              
+                                <div class="form-group">
+                                    <label for="paper_id">ID</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="paper_id" id="paper_id" placeholder="Arxiv's Paper ID">
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-secondary" id="btnSearch">&#x1F50D;</button>
+                                        </div>
+                                    </div>
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="not-found-alert">
+                                        Paper not found
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Title -->
+                                <div class="form-group">
+                                    <label for="title">Title</label>
+                                    <input type="text" class="form-control" name="title" id="title" placeholder="Paper Title">
+                                </div>
+
+                                <!-- Abstract -->
+                                <div class="form-group">
+                                    <label for="abstract">Abstract</label>
+                                    <textarea class="form-control" name="abstract" id="abstract" rows="5"></textarea>
+                                </div>
+
+                                <!-- Authors -->
+                                <div class="form-group">
+                                    <label for="authors">Authors</label>
+                                    <input type="text" class="form-control" name="authors" id="authors" placeholder="Authors">
+                                </div>
+
+                                <!-- Controls: Download | Analyse -->
+                                <div class="form-group">
+                                    <div class="row justify-content-between">
+                                        <div class="col-auto mr-auto">
+                                            <a href="#" class="btn btn-primary" role="button" name="btnDownload" id="btnDownload">Download</a>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="button" class="btn btn-primary" id="btnAnalyze">Analyze</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+
+                            <!-- Notes -->
+                            <div class="d-none" id="notes">
+                                <div class="form-group">
+                                    <label for="notes">Notes</label>
+                                    <textarea class="form-control" name="notes" id="notes" placeholder="Take your notes about this paper"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <div class="row justify-content-between">
+                                        <div class="col-auto mr-auto">
+                                            <button type="button" class="btn btn-primary" name="btnSave" id="btnSave">Save</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </body>
 
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js" integrity="sha256-bQmrZe4yPnQrLTY+1gYylfNMBuGfnT/HKsCGX+9Xuqo=" crossorigin="anonymous"></script>
 
     <script>
-
+        // Send data to the server
         function post_data(data, address){
             request = new XMLHttpRequest();
             request.addEventListener("readystatechange", (e)=>{
@@ -106,8 +121,32 @@
             request.send(JSON.stringify(data));
         }
 
+        // Add an item to the list of papers
+        function add_item(data){
+            var new_item = $("#list_item_template").clone();
+            new_item.find("h5").text(data["title"]);
+            new_item.find("small[name='paper_id']").text(data["paper_id"])
+            new_item.removeClass("d-none");
+            new_item.attr("name", data["paper_id"])
+            new_item.on("click", function(e){
+                // TODO: Load paper info into the form
+                console.log($(this).attr("name"));
+            });
+            
+            $("#paper_list").append(new_item);
+        }
         $(document).ready(function(){
+            var socket = io.connect("http://" + document.domain + ":" + location.port);
+            
+            // Configure socket events
+            socket.on("papers_loaded", function(papers){
+                data = JSON.parse(papers);
+                data.forEach(x => add_item(x));
+            });
+
             $("#not-found-alert").hide();
+
+            socket.emit("load_papers");
         });
 
         // Search button
@@ -118,7 +157,7 @@
                 .addClass("progress-bar progress-bar-striped progress-bar-animated bg-info")
                 .html("Searching...");
 
-            paperId = $("#formPaper").find("input[name=paper_id").val()
+            paperId = $("#formPaper").find("input[name='paper_id']").val()
             data = {"paperId": paperId}
 
             // Create request
@@ -136,9 +175,9 @@
                     // Fill form with data
                     data = JSON.parse(request.responseText)
 
-                    $("#formPaper").find("input[name=title").val(data["title"])
+                    $("#formPaper").find("input[name='title']").val(data["title"])
                     $("#abstract").val(data["abstract"])
-                    $("#formPaper").find("input[name=authors").val(data["authors"])
+                    $("#formPaper").find("input[name='authors']").val(data["authors"])
                     $("#btnDownload")
                         .attr("href", data["link_pdf"])
                         .attr("download", "")

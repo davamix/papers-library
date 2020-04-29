@@ -1,14 +1,20 @@
 from pathlib import Path
 from flask import Flask
-
-from pymongo import MongoClient
+from flask_socketio import SocketIO
+# from pymongo import MongoClient
 
 from controllers.library import LibraryController
 from controllers.search import SearchController
+from controllers.save import SaveController
+
+from services.database import DatabaseService
 
 templates_path = Path(Path.cwd(), "src", "templates")
 
 app = Flask(__name__, template_folder=templates_path)
+socketio = SocketIO(app)
+
+database_service = DatabaseService()
 
 ## Testing db connection
 # client_db = MongoClient("mongodb://mongodb:27017") # mongodb://service_name_in_docker_compose:27017
@@ -36,8 +42,9 @@ def after_request(response):
 
     return response
 
-app.add_url_rule("/library", view_func=LibraryController.as_view("library"))
+app.add_url_rule("/library", view_func=LibraryController.as_view("library", socket=socketio, database_service=database_service))
 app.add_url_rule("/search", view_func=SearchController.as_view("search"))
+app.add_url_rule("/save", view_func=SaveController.as_view("save"))
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    socketio.run(app, host="0.0.0.0", debug=True)

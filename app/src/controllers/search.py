@@ -12,6 +12,9 @@ class SearchController(MethodView):
     def post(self):
         data = request.get_json()
 
+        # TODO:
+        # - Search first in DB. If doesn't not exists then search on Arxiv
+        # - Notify the origin of the data, DB or Arxiv.
         if data:
             print(data)
             
