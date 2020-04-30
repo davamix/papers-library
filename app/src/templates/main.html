@@ -42,18 +42,40 @@
                                             <button type="button" class="btn btn-outline-secondary" id="btnSearch">&#x1F50D;</button>
                                         </div>
                                     </div>
+                                    <!-- Notification panels -->
                                     <div class="alert alert-danger alert-dismissible fade show" role="alert" id="not-found-alert">
                                         Paper not found
                                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
+                                    <div class="alert alert-info alert-dismissible fade show" role="alert" name="searching-alert" id="searching-alert">
+                                        Searching...
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+
                                 </div>
 
                                 <!-- Title -->
                                 <div class="form-group">
                                     <label for="title">Title</label>
                                     <input type="text" class="form-control" name="title" id="title" placeholder="Paper Title">
+                                </div>
+
+                                <!-- Dates -->
+                                <div class="form-group">
+                                    <div class="row justify-content-between">
+                                        <div class="col-auto mr-auto">
+                                            <label for="published">Published</label>
+                                            <input type="text" class="form-control" name="published" id="published" placeholder="Published data">
+                                        </div>
+                                        <div class="col-auto">
+                                            <label for="updated">Updated</label>
+                                            <input type="text" class="form-control" name="updated" id="updated" placeholder="Last updated">
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <!-- Abstract -->
@@ -135,7 +157,13 @@
             
             $("#paper_list").append(new_item);
         }
+    </script>
+    
+    <script>
         $(document).ready(function(){
+            $("#not-found-alert").hide();
+            $("#searching-alert").hide();
+
             var socket = io.connect("http://" + document.domain + ":" + location.port);
             
             // Configure socket events
@@ -144,7 +172,12 @@
                 data.forEach(x => add_item(x));
             });
 
-            $("#not-found-alert").hide();
+            socket.on("searching", function(msg){
+                $("#searching-alert").text(msg);
+                $("#searching-alert").fadeTo(2000, 500).slideUp(500, function(){
+                    $("#searching-alert").slideUp(500);
+                });
+            });
 
             socket.emit("load_papers");
         });
@@ -152,10 +185,7 @@
         // Search button
         $("#btnSearch").on("click", function(e){
             // Disable search button while searching
-            $(this).attr("disabled", true)
-                .removeClass("btn btn-outline-secondary")
-                .addClass("progress-bar progress-bar-striped progress-bar-animated bg-info")
-                .html("Searching...");
+            $(this).attr("disabled", true);
 
             paperId = $("#formPaper").find("input[name='paper_id']").val()
             data = {"paperId": paperId}
@@ -166,6 +196,8 @@
 
             // Process response
             request.onload = function(){
+                $("#searching-alert").hide();
+
                 // Paper not found alert
                 if(request.responseText == ""){
                     $("#not-found-alert").fadeTo(2000, 500).slideUp(500, function(){
@@ -176,6 +208,8 @@
                     data = JSON.parse(request.responseText)
 
                     $("#formPaper").find("input[name='title']").val(data["title"])
+                    $("#formPaper").find("input[name='published']").val(data["published"])
+                    $("#formPaper").find("input[name='updated']").val(data["updated"])
                     $("#abstract").val(data["abstract"])
                     $("#formPaper").find("input[name='authors']").val(data["authors"])
                     $("#btnDownload")
@@ -200,6 +234,8 @@
             data = {
                 "paper_id": $("#formPaper").find("input[name=paper_id").val(),
                 "title": $("#formPaper").find("input[name=title").val(),
+                "published": $("$formPaper").find("input[name='published']").val(),
+                "updated": $("formPaper").find("input[name='updated']").val(),
                 "abstract": $("#formPaper").find("input[name=abstract").val(),
                 "authors": $("#formPaper").find("input[name=authors").val().split(","),
                 "notes": $("#formPaper").find("input[name=notes").val()

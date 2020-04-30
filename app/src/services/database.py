@@ -20,7 +20,12 @@ class DatabaseService():
         Returns:
             The paper data if paper_id exists, otherwise returns None
         """
-        return self.database.papers_collection.find_one({"paper_id": paper_id})
+        paper = self.database.papers_collection.find_one({"paper_id": paper_id})
+
+        if paper is not None:
+            return dumps(paper)
+
+        return None
 
     def get_papers(self, filter = {}):
         """
