@@ -17,5 +17,4 @@ class LibraryController(MethodView):
         print("### Loading papers...")
         data = self.database.get_papers()
 
-        print(data)
         self.socket.emit("papers_loaded", data)

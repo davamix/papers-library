@@ -17,11 +17,8 @@ class SearchController(MethodView):
         data = request.get_json()
 
         if data:
-            print(data)
-            
             self.socket.emit("searching", "Searching in database...")
             paper = self.get_from_database(data["paperId"])
-            print(paper)
 
             if paper is None:
                 self.socket.emit("searching", "Searching in Arxiv...")
@@ -46,8 +43,6 @@ class SearchController(MethodView):
             return {"error": "NotFound", "message": e.reason}
 
         parse = feedparser.parse(response)
-
-        print(f"PARSE: {parse}")
 
         if len(parse["entries"]) > 0:
             paper = {
