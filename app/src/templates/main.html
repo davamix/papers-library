@@ -16,11 +16,13 @@
 
             <div class="row">
                 <div class="col-4">
+                    <!-- Papers List -->
                     <div class="list-group" id="paper_list">
                         <div class="d-none" id="list_item_template">
                             <a href="#" class="list-group-item list-group-item-action flex-column align-items-start" id="paper_item">
                                 <div class="d-flex w-100 justify-content-between">
                                     <h5 class="mb-1" name="title"></h5>
+                                    <small name="updated"></small>
                                 </div>
                                 <!-- <a href="#" class="mb-1" name="link">Link</a> -->
                                 <small name="paper_id"></small>
@@ -141,22 +143,91 @@
             request.open("POST", address, true);
             request.setRequestHeader("Content-Type", "application/json");
             request.send(JSON.stringify(data));
+
+            return request;
+        }
+
+        // Check if the response after searching is valid or contains errors
+        function is_valid_response(request){
+            response = request.responseText;
+
+            try{
+                response = JSON.parse(request.responseText);
+            }catch(err){
+                response = "";
+                console.log("ERROR: Invalid response: " + err);
+            }
+
+            if(response == "" || response["error"] == "NotFound"){
+                return false;
+            }
+
+            return true;
+        }
+        
+        // Fill form with data
+        function load_paper(data){
+            $("#formPaper").find("input[name='paper_id']").val(data["paper_id"]);
+            $("#formPaper").find("input[name='title']").val(data["title"]);
+            $("#formPaper").find("input[name='published']").val(data["published"]);
+            $("#formPaper").find("input[name='updated']").val(data["updated"]);
+            $("#formPaper").find("textarea[name='abstract']").val(data["abstract"]);
+            $("#formPaper").find("input[name='authors']").val(data["authors"]);
+            $("#formPaper").find("textarea[name='notes']").val(data["notes"]);
+            $("#btnDownload")
+                .attr("href", data["link_pdf"])
+                .attr("download", "")
+                .attr("target", "_blank");
+            $("#notes").removeClass("d-none");
         }
 
         // Add an item to the list of papers
         function add_item(data){
             var new_item = $("#list_item_template").clone();
             new_item.find("h5").text(data["title"]);
-            new_item.find("small[name='paper_id']").text(data["paper_id"])
+            new_item.find("small[name='updated']").text("Updated: " + data["updated"]);
+            new_item.find("small[name='paper_id']").text(data["paper_id"]);
             new_item.removeClass("d-none");
-            new_item.attr("name", data["paper_id"])
+            new_item.attr("name", data["paper_id"]);
+            
+            // Add the ability to search the paper
             new_item.on("click", function(e){
-                // TODO: Load paper info into the form
-                console.log($(this).attr("name"));
+                data = {"paperId": data["paper_id"]};
+                request = post_data(data, "http://127.0.0.1:5000/search");
+                
+                request.onerror = function(){
+                    console.log("ERROR no request: " + err);
+                    $("#btnSearch").attr("disabled", false);
+                }
+                
+                request.onload = function(){
+                    $("#searching-alert").hide();
+                    
+                    if(is_valid_response(request)){
+                        load_paper(response);
+                    }else{
+                        $("#not-found-alert").fadeTo(2000, 500).slideUp(500, function(){
+                            $("#not-found-alert").slideUp(500);
+                        });
+                    }
+
+                    $("#btnSearch").attr("disabled", false);
+                };
             });
             
             $("#paper_list").append(new_item);
         }
+
+        // Reset all field except the ID
+        function reset_form(){
+            paper_id = $("#formPaper").find("input[name='paper_id']").val();
+
+            $("#formPaper")[0].reset();
+            $("#formPaper").find("input[name='paper_id']").val(paper_id);
+            $("#btnDownload").attr("href", "#");
+            $("#notes").addClass("d-none")
+        }
+
     </script>
     
     <script>
@@ -187,58 +258,43 @@
             // Disable search button while searching
             $(this).attr("disabled", true);
 
-            paperId = $("#formPaper").find("input[name='paper_id']").val()
-            data = {"paperId": paperId}
+            paperId = $("#formPaper").find("input[name='paper_id']").val();
+            data = {"paperId": paperId};
 
             // Create request
-
-            post_data(data, "http://127.0.0.1:5000/search");
-
-            // Process response
+            request = post_data(data, "http://127.0.0.1:5000/search");
+            request.onerror = function(){
+                console.log("ERROR no request: " + err);
+                $("#btnSearch").attr("disabled", false);
+            }
+            
             request.onload = function(){
                 $("#searching-alert").hide();
-
-                // Paper not found alert
-                if(request.responseText == ""){
+                
+                if(is_valid_response(request)){
+                    load_paper(response);
+                }else{
                     $("#not-found-alert").fadeTo(2000, 500).slideUp(500, function(){
                         $("#not-found-alert").slideUp(500);
                     });
-                }else{
-                    // Fill form with data
-                    data = JSON.parse(request.responseText)
 
-                    $("#formPaper").find("input[name='title']").val(data["title"])
-                    $("#formPaper").find("input[name='published']").val(data["published"])
-                    $("#formPaper").find("input[name='updated']").val(data["updated"])
-                    $("#abstract").val(data["abstract"])
-                    $("#formPaper").find("input[name='authors']").val(data["authors"])
-                    $("#btnDownload")
-                        .attr("href", data["link_pdf"])
-                        .attr("download", "")
-                        .attr("target", "_blank")
+                    reset_form();
                 }
-                
-                // Enable search button again
-                $("#btnSearch").attr("disabled", false)
-                    .removeClass("progress-bar progress-bar-striped progress-bar-animated bg-info")
-                    .addClass("btn btn-outline-secondary")
-                    .html("&#x1F50D;");
 
-                // Show notes div
-                $("#notes").removeClass("d-none");
-            }
+                $("#btnSearch").attr("disabled", false);
+            };
         });
 
         // Save button
         $("#btnSave").on("click", function(e){
             data = {
-                "paper_id": $("#formPaper").find("input[name=paper_id").val(),
-                "title": $("#formPaper").find("input[name=title").val(),
-                "published": $("$formPaper").find("input[name='published']").val(),
-                "updated": $("formPaper").find("input[name='updated']").val(),
-                "abstract": $("#formPaper").find("input[name=abstract").val(),
-                "authors": $("#formPaper").find("input[name=authors").val().split(","),
-                "notes": $("#formPaper").find("input[name=notes").val()
+                "paper_id": $("#formPaper").find("input[name='paper_id']").val(),
+                "title": $("#formPaper").find("input[name='title']").val(),
+                "published": $("#formPaper").find("input[name='published']").val(),
+                "updated": $("#formPaper").find("input[name='updated']").val(),
+                "abstract": $("#formPaper").find("textarea[name='abstract']").val(),
+                "authors": $("#formPaper").find("input[name='authors']").val().split(","),
+                "notes": $("#formPaper").find("textarea[name='notes']").val()
             }
 
             post_data(data, "http://127.0.0.1:5000/save");

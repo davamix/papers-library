@@ -11,3 +11,7 @@ class SaveController(MethodView):
 
         if data:
             print(f"Saving: {data}")
+
+        return "", 204
+
+    

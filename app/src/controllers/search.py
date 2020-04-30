@@ -21,12 +21,13 @@ class SearchController(MethodView):
             
             self.socket.emit("searching", "Searching in database...")
             paper = self.get_from_database(data["paperId"])
+            print(paper)
 
             if paper is None:
                 self.socket.emit("searching", "Searching in Arxiv...")
                 paper = self.get_from_arxiv(data["paperId"])
 
-                return paper, 206
+            return paper, 206
 
         return "", 204
 
@@ -38,13 +39,19 @@ class SearchController(MethodView):
         print("### Searching in Arxiv...")
         query = self.arxiv_url + "id_list=" + paper_id
 
-        with urllib.request.urlopen(query) as url:
-            response = url.read()
+        try:
+            with urllib.request.urlopen(query) as url:
+                response = url.read()
+        except urllib.error.HTTPError as e:
+            return {"error": "NotFound", "message": e.reason}
 
         parse = feedparser.parse(response)
 
+        print(f"PARSE: {parse}")
+
         if len(parse["entries"]) > 0:
             paper = {
+                "paper_id": paper_id,
                 "title": parse["entries"][0]["title"],
                 "abstract": parse["entries"][0]["summary"].replace("\n", " "),
                 "authors": self.extract_authors(parse["entries"][0]),
