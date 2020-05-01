@@ -16,7 +16,7 @@ Run
 docker-compose up
 ```
 
-Navigate to `http://127.0.0.1/library`
+Navigate to `http://127.0.0.1:5000/library`
 
 To reset the DB
 ```
