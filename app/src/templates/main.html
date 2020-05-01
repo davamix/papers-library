@@ -18,18 +18,20 @@
             <div class="row">
                 <div class="col-4">
                     <div class="scroll-panel">
+                        <!-- Paper item template. Used to clone -->
+                        <div class="d-none" id="list_item_template">
+                            <a href="#" class="list-group-item list-group-item-action flex-column align-items-start" id="paper_item">
+                                <h5 class="mb-1" name="title"></h5>
+                                <div class="d-flex w-100 justify-content-between">
+                                    <small name="paper_id"></small>
+                                    <small name="updated"></small>
+                                </div>
+                            </a>
+                        </div>
+
                         <!-- Papers List -->
                         <div class="list-group" id="paper_list">
-                            <div class="d-none" id="list_item_template">
-                                <a href="#" class="list-group-item list-group-item-action flex-column align-items-start" id="paper_item">
-                                    <div class="d-flex w-100 justify-content-between">
-                                        <h5 class="mb-1" name="title"></h5>
-                                        <small name="updated"></small>
-                                    </div>
-                                    <!-- <a href="#" class="mb-1" name="link">Link</a> -->
-                                    <small name="paper_id"></small>
-                                </a>
-                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -49,13 +51,13 @@
                                         </div>
                                     </div>
                                     <!-- Notification panels -->
-                                    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="not-found-alert">
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert" id="notification-error-alert">
                                         Paper not found
                                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
-                                    <div class="alert alert-info alert-dismissible fade show" role="alert" name="searching-alert" id="searching-alert">
+                                    <div class="alert alert-info alert-dismissible fade show" role="alert" name="notification-alert" id="notification-alert">
                                         Searching...
                                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
@@ -167,11 +169,59 @@
 
             return true;
         }
+
+        var last_item_active = null;
+        // Change the active item in the list of papers
+        function change_active_item(current_item = null){
+            if(last_item_active !== null){
+                last_item_active.find("a").removeClass("active");
+            }
+
+            if(current_item != null){
+                current_item.find("a").addClass("active");
+            }
+
+            last_item_active = current_item;
+        }
+
+        // Manage the search response when is valid
+        function on_search_response(){
+            $("#notification-alert").hide();
+                
+            if(is_valid_response(request)){
+                load_paper(response);
+
+                if(response["data_from"] == "db"){
+                    item = $("#paper_list").find("div[name='" + response["paper_id"] + "']");
+                    change_active_item(item);
+                }
+            }else{
+                $("#notification-error-alert").text("Paper not found");
+                $("#notification-error-alert").fadeTo(2000, 500).slideUp(500, function(){
+                    $("#notification-error-alert").slideUp(500);
+                });
+
+                reset_form();
+            }
+
+            $("#btnSearch").attr("disabled", false);
+        }
+
+        // Manage the search response when there is an error
+        function on_search_error(){
+            console.log("ERROR no request");
+            $("#btnSearch").attr("disabled", false);
+        }
         
         // Fill form with data
         function load_paper(data){
-            $("#formPaper").find("span[name='addon_data_from']").removeClass("d-none").html([data["data_from"]]);
+            // $("#formPaper").find("span[name='addon_data_from']").removeClass("d-none").html([data["data_from"]]);
             $("#formPaper").find("input[name='paper_id']").val(data["paper_id"]);
+            if(data["data_from"] == "db"){
+                $("#formPaper").find("span[name='addon_data_from']").removeClass("d-none").html("&#x1F4BE;");
+            }else{
+                $("#formPaper").find("span[name='addon_data_from']").removeClass("d-none").html("&#x1F310;");
+            }
             $("#formPaper").find("input[name='title']").val(data["title"]);
             $("#formPaper").find("input[name='published']").val(data["published"]);
             $("#formPaper").find("input[name='updated']").val(data["updated"]);
@@ -185,17 +235,7 @@
             $("#notes").removeClass("d-none");
         }
 
-        var last_item_active;
-        // Change the active item in the list of papers
-        function change_active_item(current_item){
-            if(last_item_active !== undefined){
-                last_item_active.find("a").removeClass("active");
-            }
-
-            current_item.find("a").addClass("active");
-
-            last_item_active = current_item;
-        }
+        
 
         // Add an item to the list of papers
         function add_item(data){
@@ -210,26 +250,15 @@
             new_item.on("click", function(e){
                 change_active_item($(this));
 
-                data = {"paperId": data["paper_id"]};
+                data = {"paperId": $(this).attr("name")};
                 request = post_data(data, "http://127.0.0.1:5000/search");
                 
                 request.onerror = function(){
-                    console.log("ERROR no request: " + err);
-                    $("#btnSearch").attr("disabled", false);
-                }
-                
-                request.onload = function(){
-                    $("#searching-alert").hide();
-                    
-                    if(is_valid_response(request)){
-                        load_paper(response);
-                    }else{
-                        $("#not-found-alert").fadeTo(2000, 500).slideUp(500, function(){
-                            $("#not-found-alert").slideUp(500);
-                        });
-                    }
+                    on_search_error();
+                };
 
-                    $("#btnSearch").attr("disabled", false);
+                request.onload = function(){
+                    on_search_response();
                 };
             });
             
@@ -246,28 +275,47 @@
             $("#notes").addClass("d-none")
             $("#formPaper").find("span[name='addon_data_from']").addClass("d-none");
 
+            change_active_item();
         }
-
     </script>
     
     <script>
         $(document).ready(function(){
-            $("#not-found-alert").hide();
-            $("#searching-alert").hide();
+            $("#notification-error-alert").hide();
+            $("#notification-alert").hide();
 
             var socket = io.connect("http://" + document.domain + ":" + location.port);
             
             // Configure socket events
             socket.on("papers_loaded", function(papers){
+                $("#paper_list").empty();
+
                 data = JSON.parse(papers);
                 data.forEach(x => add_item(x));
             });
 
             socket.on("searching", function(msg){
-                $("#searching-alert").text(msg);
-                $("#searching-alert").fadeTo(2000, 500).slideUp(500, function(){
-                    $("#searching-alert").slideUp(500);
+                $("#notification-alert").text(msg);
+                $("#notification-alert").fadeTo(2000, 500).slideUp(500, function(){
+                    $("#notification-alert").slideUp(500);
                 });
+            });
+
+            socket.on("saved", function(msg){
+                if(msg["status"] === "ok"){
+                    $("#notification-alert").text(msg["message"]);
+                    $("#notification-alert").fadeTo(2000, 500).slideUp(500, function(){
+                        $("#notification-alert").slideUp(500);
+                    });
+
+                    // Load the list of papers
+                    socket.emit("load_papers");
+                }else{
+                    $("#notification-error-alert").text(msg["message"]);
+                    $("#notification-error-alert").fadeTo(2000, 500).slideUp(500, function(){
+                        $("#notification-error-alert").slideUp(500);
+                    });
+                }
             });
 
             socket.emit("load_papers");
@@ -285,25 +333,13 @@
 
             // Create request
             request = post_data(data, "http://127.0.0.1:5000/search");
+            
             request.onerror = function(){
-                console.log("ERROR no request: " + err);
-                $("#btnSearch").attr("disabled", false);
-            }
+                on_search_error();
+            };
             
             request.onload = function(){
-                $("#searching-alert").hide();
-                
-                if(is_valid_response(request)){
-                    load_paper(response);
-                }else{
-                    $("#not-found-alert").fadeTo(2000, 500).slideUp(500, function(){
-                        $("#not-found-alert").slideUp(500);
-                    });
-
-                    reset_form();
-                }
-
-                $("#btnSearch").attr("disabled", false);
+                on_search_response();
             };
         });
 
@@ -316,7 +352,8 @@
                 "updated": $("#formPaper").find("input[name='updated']").val(),
                 "abstract": $("#formPaper").find("textarea[name='abstract']").val(),
                 "authors": $("#formPaper").find("input[name='authors']").val().split(","),
-                "notes": $("#formPaper").find("textarea[name='notes']").val()
+                "notes": $("#formPaper").find("textarea[name='notes']").val(),
+                "link_pdf": $("#btnDownload").attr("href")
             }
 
             post_data(data, "http://127.0.0.1:5000/save");

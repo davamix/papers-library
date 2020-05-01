@@ -44,7 +44,7 @@ def after_request(response):
 
 app.add_url_rule("/library", view_func=LibraryController.as_view("library", socket=socketio, database_service=database_service))
 app.add_url_rule("/search", view_func=SearchController.as_view("search", socket=socketio, database_service=database_service))
-app.add_url_rule("/save", view_func=SaveController.as_view("save"))
+app.add_url_rule("/save", view_func=SaveController.as_view("save", socket=socketio, database_service=database_service))
 
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", debug=True)

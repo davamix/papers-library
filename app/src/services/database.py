@@ -8,7 +8,7 @@ class DatabaseService():
         
 
     def save(self, data):
-        return self.database.papers_collection.insert_one(data).inserted_id
+        return self.database.papers_collection.replace_one({"paper_id":data["paper_id"]}, data, True)
 
     def get_paper(self, paper_id):
         """
@@ -23,7 +23,7 @@ class DatabaseService():
         paper = self.database.papers_collection.find_one({"paper_id": paper_id})
         
         if paper is not None:
-            paper["data_from"] = u"&#x1F4BE;"
+            paper["data_from"] = "db"
             return dumps(paper)
 
         return None

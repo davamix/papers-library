@@ -14,6 +14,8 @@ services:
     mongodb:
         image: mongo:bionic
         restart: always
+        # To reset the db: docker-compose down --volumes
+        # https://stackoverflow.com/a/52509946/844372
         volumes:
             - mongodbdata:/data/db
         networks:
