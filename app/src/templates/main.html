@@ -45,6 +45,7 @@
                                         <input type="text" class="form-control" name="paper_id" id="paper_id" placeholder="Arxiv's Paper ID">
                                         <div class="input-group-append">
                                             <button type="button" class="btn btn-outline-secondary" id="btnSearch">&#x1F50D;</button>
+                                            <span class="input-group-text d-none" name="addon_data_from" title="Data from"></span>
                                         </div>
                                     </div>
                                     <!-- Notification panels -->
@@ -60,7 +61,6 @@
                                             <span aria-hidden="true">&times;</span>
                                         </button>
                                     </div>
-
                                 </div>
 
                                 <!-- Title -->
@@ -170,6 +170,7 @@
         
         // Fill form with data
         function load_paper(data){
+            $("#formPaper").find("span[name='addon_data_from']").removeClass("d-none").html([data["data_from"]]);
             $("#formPaper").find("input[name='paper_id']").val(data["paper_id"]);
             $("#formPaper").find("input[name='title']").val(data["title"]);
             $("#formPaper").find("input[name='published']").val(data["published"]);
@@ -243,6 +244,8 @@
             $("#formPaper").find("input[name='paper_id']").val(paper_id);
             $("#btnDownload").attr("href", "#");
             $("#notes").addClass("d-none")
+            $("#formPaper").find("span[name='addon_data_from']").addClass("d-none");
+
         }
 
     </script>
@@ -274,6 +277,8 @@
         $("#btnSearch").on("click", function(e){
             // Disable search button while searching
             $(this).attr("disabled", true);
+            // Remove data-from icon
+            $("#formPaper").find("span[name='addon_data_from']").addClass("d-none");
 
             paperId = $("#formPaper").find("input[name='paper_id']").val();
             data = {"paperId": paperId};

@@ -21,8 +21,9 @@ class DatabaseService():
             The paper data if paper_id exists, otherwise returns None
         """
         paper = self.database.papers_collection.find_one({"paper_id": paper_id})
-
+        
         if paper is not None:
+            paper["data_from"] = u"&#x1F4BE;"
             return dumps(paper)
 
         return None

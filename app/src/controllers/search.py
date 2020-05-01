@@ -52,7 +52,8 @@ class SearchController(MethodView):
                 "authors": self.extract_authors(parse["entries"][0]),
                 "link_pdf": self.extract_link_pdf(parse["entries"][0]),
                 "published": self.extract_date(parse["entries"][0]["published"]),
-                "updated": self.extract_date(parse["entries"][0]["updated"])
+                "updated": self.extract_date(parse["entries"][0]["updated"]),
+                "data_from": u"&#x1F310;"
             }
 
         return paper
