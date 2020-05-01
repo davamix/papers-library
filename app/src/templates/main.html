@@ -215,7 +215,6 @@
         
         // Fill form with data
         function load_paper(data){
-            // $("#formPaper").find("span[name='addon_data_from']").removeClass("d-none").html([data["data_from"]]);
             $("#formPaper").find("input[name='paper_id']").val(data["paper_id"]);
             if(data["data_from"] == "db"){
                 $("#formPaper").find("span[name='addon_data_from']").removeClass("d-none").html("&#x1F4BE;");
