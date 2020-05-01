@@ -7,4 +7,3 @@ Get the paper information from Arxiv based on the ID using the Arxiv API.
 ## TODO: ##
 
 * Analyze the text and extract other sections in addition to the abstract
-* Save form data into a database
