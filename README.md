@@ -1,6 +1,6 @@
 # Papers Library (WIP) #
 
-Get the paper information from Arxiv based on the ID, take your notes about the paper and save it into a MongoDB database.
+Get the paper information from [arXiv.org](https://arxiv.org/) based on the ID, take your notes about the paper and save it into a MongoDB database.
 
 ![Screenshot](papers_library.webp "Papers Library screenshot")
 
