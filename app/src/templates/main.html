@@ -184,6 +184,18 @@
             $("#notes").removeClass("d-none");
         }
 
+        var last_item_active;
+        // Change the active item in the list of papers
+        function change_active_item(current_item){
+            if(last_item_active !== undefined){
+                last_item_active.find("a").removeClass("active");
+            }
+
+            current_item.find("a").addClass("active");
+
+            last_item_active = current_item;
+        }
+
         // Add an item to the list of papers
         function add_item(data){
             var new_item = $("#list_item_template").clone();
@@ -195,6 +207,8 @@
             
             // Add the ability to search the paper
             new_item.on("click", function(e){
+                change_active_item($(this));
+
                 data = {"paperId": data["paper_id"]};
                 request = post_data(data, "http://127.0.0.1:5000/search");
                 
