@@ -14,6 +14,8 @@ import pathlib
 from pathlib import Path
 from pdf2image import convert_from_path
 from PIL import Image
+from multiprocessing import Pool
+from functools import partial
 
 def create_folder_structure(path):
     """
@@ -55,25 +57,40 @@ def get_pdf_files(source_path):
     
     return pdf_list
 
-def save_images(images, start_id, output_path):
+def save_images(images, img_base_name, output_path):
     """
     Save the images using the {start_id} as name into {output_path}
 
     Parameters
     ----------
     images list: list of PIL images
-    start_id: start number used as a name image
+    img_base_name str: string used as a base name for the image 
     output_path str: destination folder to save the images
-
-    Returns
-    start_id int: counter updated
     """
 
-    for img in images:
-        img.save(Path(output_path, str(start_id)), format="JPEG")
-        start_id += 1
+    for id, img in enumerate(images):
+        img_name = f"{img_base_name}_{id}"
 
-    return start_id
+        img.save(Path(output_path, img_name), format="JPEG")
+
+def process_file(file, is_group):
+    img_base_name = os.path.splitext(file)[0].split(pathlib.os.sep)[-1]
+
+    if is_group:
+        # Create the output folder with the pdf name
+        output_folder = img_base_name
+        destination_path = create_folder_structure(Path(base_output_path, output_folder))
+    else:
+        destination_path = base_output_path
+    
+    try:
+        print(f"# Converting {file}...")
+        images = convert_from_path(file)
+        
+        save_images(images, img_base_name, destination_path)
+        return {"status": "ok", "message": f"[saved] {file} => {destination_path}"}
+    except:
+        return {"status": "error", "message": f"ERROR when processing {file}"}
 
 parser = argparse.ArgumentParser(description="Convert pdf files from source location to JPEG images")
 parser.add_argument("source", help="Folder that contains the pdf files")
@@ -84,24 +101,16 @@ args = parser.parse_args()
 base_output_path = create_folder_structure(Path(Path.cwd(), "output"))
 
 if Path(args.source).exists():
-    # Counter used for the image name
-    img_next_id = 1 
-
     pdf_list = get_pdf_files(args.source)
+    counter = 1
 
-    for i, f in enumerate(pdf_list):
-        if args.group:
-            # Create the output folder with the pdf name
-            output_folder = os.path.splitext(f)[0].split(pathlib.os.sep)[-1]
-            destination_path = create_folder_structure(Path(base_output_path, output_folder))
-            img_next_id = 1
-        else:
-            destination_path = base_output_path
-            
-        print(f"\n# [{i+1}/{len(pdf_list)}] Converting {f} ", end="")
-        images = convert_from_path(f)
+    with Pool(processes=8) as pool:
+        for msg in pool.imap_unordered(partial(process_file, is_group=args.group), pdf_list):
+            if msg["status"] == "ok":
+                print(f"# [{counter}/{len(pdf_list)}] {msg['message']}")
+            else:
+                print(f"{msg['message']}")
+
+            counter += 1
         
-        print(f" ==> Saving into {destination_path}", end="")
-        img_next_id = save_images(images, img_next_id, destination_path)
-
-print("\n\n# Conversion finished!")
+print("\n# Conversion finished!")
