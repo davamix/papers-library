@@ -23,6 +23,10 @@ To reset the DB
 docker-compose down --volumes
 ```
 
+## Tools ##
+* [arxiv-downloader.py](https://github.com/davamix/Scripts/blob/master/arxiv-downloader.py): script to download pdf papers from [arXiv](https://export.arxiv.org)
+
+* [pdf-image.py](https://github.com/davamix/Scripts/blob/master/pdf-image.py): This script converts all the pdf's from the source folder into images
 
 ## TODO: ##
 
