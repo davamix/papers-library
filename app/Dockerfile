@@ -2,6 +2,10 @@ FROM python:3.8.2
 
 WORKDIR /usr/src/papers-library
 
+RUN apt update && apt install -y \
+    poppler-utils \
+    && rm -rf /var/lib/apt/lists/*
+
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
