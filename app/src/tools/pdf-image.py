@@ -69,7 +69,7 @@ def save_images(images, img_base_name, output_path):
     """
 
     for id, img in enumerate(images):
-        img_name = f"{img_base_name}_{id}"
+        img_name = f"{img_base_name}_{id}.jpg"
 
         img.save(Path(output_path, img_name), format="JPEG")
 
