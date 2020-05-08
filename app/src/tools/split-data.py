@@ -1,3 +1,13 @@
+"""
+This script split the data from a source folder into a training set and validation set.
+
+source: Folder that contains the files to be split
+train: % value of the data that will be part of the training set
+(optional) validation: % value of the data that will be part of the validation dataset. If omitted, the value will be the remaing part
+
+usage: split-data.py [-h] [--validation VALIDATION] source train
+"""
+
 import os
 import argparse
 import shutil
@@ -57,7 +67,7 @@ def copy_files(source, destination):
 parser = argparse.ArgumentParser(description="Split data from source folder into training and validation")
 parser.add_argument("source", help="Folder that contains all files to be split")
 parser.add_argument("train", type=int, help="% value of the data that will be part of the training dataset")
-parser.add_argument("--validation", "-val", type=int, default=0, help=("% value of the data that will be part of the validation dataset. If omitted, the value will be total - training"))
+parser.add_argument("--validation", "-val", type=int, default=0, help=("% value of the data that will be part of the validation dataset. If omitted, the value will be the remaing part"))
 
 args = parser.parse_args()
 

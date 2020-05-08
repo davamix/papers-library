@@ -26,9 +26,12 @@ docker-compose down --volumes
 ```
 
 ## Tools ##
-* [arxiv-downloader.py](https://github.com/davamix/Scripts/blob/master/arxiv-downloader.py): script to download pdf papers from [arXiv](https://export.arxiv.org)
+* [arxiv-downloader.py](https://github.com/davamix/Scripts/blob/master/arxiv-downloader.py): Script to download pdf papers from [arXiv](https://export.arxiv.org)
 
 * [pdf-image.py](https://github.com/davamix/Scripts/blob/master/pdf-image.py): This script converts all the pdf's from the source folder into images
+
+* [split-data.py](https://github.com/davamix/Scripts/blob/master/split-data.py): This script split the data from a source folder into a training set and validation set.
+
 
 ## TODO: ##
 
